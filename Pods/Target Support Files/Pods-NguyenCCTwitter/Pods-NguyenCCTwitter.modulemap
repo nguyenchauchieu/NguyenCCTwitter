@@ -1,0 +1,6 @@
+framework module Pods_NguyenCCTwitter {
+  umbrella header "Pods-NguyenCCTwitter-umbrella.h"
+
+  export *
+  module * { export * }
+}
