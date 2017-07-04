@@ -21,6 +21,7 @@ struct Tweet {
     var createdAt: String?
     var authorName: String?
     var authorAvatarUrl: URL?
+    var screenName: String?
     
     
     init(tweetDictionary: NSDictionary) {
@@ -30,6 +31,7 @@ struct Tweet {
         self.isFavorited = tweetDictionary["favorited"] as? Bool
         self.favoriteCount = tweetDictionary["favorite_count"] as? Int
         self.text = tweetDictionary["text"] as? String
+        self.screenName = tweetDictionary.value(forKeyPath: "user.screen_name") as? String
         
         if let media = tweetDictionary.value(forKeyPath: "entities.media") as? [NSDictionary] {
                 if let imagePath = media[0]["media_url_https"] as? String {

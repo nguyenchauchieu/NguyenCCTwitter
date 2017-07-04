@@ -51,16 +51,13 @@ class HomeViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        
+        if let detailController = segue.destination as? TweetDetailViewController {
+            let indexPath = tweetTableView.indexPathForSelectedRow!
+            detailController.tweet = tweets[indexPath.row]
+        }
     }
-    */
 
 }
 
@@ -88,6 +85,15 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
 }
 
 extension HomeViewController: TweetTableViewCellDelegate {
+    func updateTweets(tweet: Tweet) {
+        for index in 0...tweets.count - 1 {
+            if tweets[index].id! == tweet.id! {
+                tweets[index].isFavorited = tweet.isFavorited!
+                tweets[index].isReTweeted = tweet.isReTweeted!
+            }
+        }
+    }
+    
     func updateTweetTable() {
         fetchTweets()
     }

@@ -9,11 +9,12 @@
 import UIKit
 
 protocol TweetTableViewCellDelegate {
+    func updateTweets(tweet: Tweet) -> Void
     func updateTweetTable() -> Void
 }
 
 class TweetTableViewCell: UITableViewCell {
-
+    
     @IBOutlet var avatarImageView: UIImageView!
     @IBOutlet var authorNameLabel: UILabel!
     @IBOutlet var createdAtLabel: UILabel!
@@ -37,8 +38,6 @@ class TweetTableViewCell: UITableViewCell {
             createdAtLabel.text = tweet.createdAt!
             contentLabel.text = tweet.text!
             replyCountLabel.text = "Reply"
-            reTweetCountLabel.text = "\(String(describing: tweet.reTweetCount!))"
-            likeCountLabel.text = "\(String(describing: tweet.favoriteCount!))"
             if let imageUrl = tweet.imageUrl {
                 tweetImageView.setImageWith(imageUrl)
             } else {
@@ -47,19 +46,17 @@ class TweetTableViewCell: UITableViewCell {
             
             if (tweet?.isFavorited!)! {
                 likeImageView.image = UIImage(named: "like_icon")
-                likeCountLabel.textColor = UIColor(red: 229/255, green: 42/255, blue: 82/255, alpha: 1)
             } else {
                 likeImageView.image = UIImage(named: "unlike_icon")
-                likeCountLabel.textColor = UIColor(red: 170/255, green: 184/255, blue: 193/255, alpha: 1)
             }
             
             if (tweet?.isReTweeted!)! {
                 reTweetImageView.image = UIImage(named: "retweet_icon")
-                reTweetCountLabel.textColor = UIColor(red: 46/255, green: 204/255, blue: 137/255, alpha: 1)
             } else {
                 reTweetImageView.image  = UIImage(named: "un_retweet_icon")
-                likeCountLabel.textColor = UIColor(red: 170/255, green: 184/255, blue: 193/255, alpha: 1)
             }
+            reTweetCountLabel.text = "\(String(describing: tweet.reTweetCount!))"
+            likeCountLabel.text = "\(String(describing: tweet.favoriteCount!))"
         }
     }
     override func awakeFromNib() {
@@ -67,13 +64,13 @@ class TweetTableViewCell: UITableViewCell {
         setupGestures()
         // Initialization code
     }
-
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        
         // Configure the view for the selected state
     }
-
+    
     func setupGestures() -> Void {
         let favoriteGesture = UITapGestureRecognizer(target: self, action: #selector(didTapFavoriteButton(sender:)))
         likeImageView.addGestureRecognizer(favoriteGesture)
@@ -87,12 +84,10 @@ class TweetTableViewCell: UITableViewCell {
     func didTapFavoriteButton(sender: Any) -> Void {
         if tweet.isFavorited! {
             TwitterClient.sharedInstance?.unFavorite(tweetId: tweet.id!, success: { (tweet: Tweet) in
-//                self.delegate.updateTweetTable()
+                self.delegate.updateTweetTable()
                 self.likeImageView.image = UIImage(named: "unlike_icon")
-                self.likeCountLabel.textColor = UIColor(red: 170/255, green: 184/255, blue: 193/255, alpha: 1)
                 let likeCount = Int(self.likeCountLabel.text!)
                 self.likeCountLabel.text = "\(likeCount! - 1)"
-                self.contentLabel.text = "aas"
                 self.tweet.isFavorited = false
                 
             }, failure: { (error: Error) in
@@ -100,9 +95,8 @@ class TweetTableViewCell: UITableViewCell {
             })
         } else {
             TwitterClient.sharedInstance?.favorite(tweetId: tweet.id!, success: { (tweet: Tweet) in
-//                self.delegate.updateTweetTable()
+                self.delegate.updateTweetTable()
                 self.likeImageView.image = UIImage(named: "like_icon")
-                self.likeCountLabel.textColor = UIColor(red: 229/255, green: 42/255, blue: 82/255, alpha: 1)
                 let likeCount = Int(self.likeCountLabel.text!)
                 self.likeCountLabel.text = "\(likeCount! + 1)"
                 self.tweet.isFavorited = true
@@ -115,9 +109,8 @@ class TweetTableViewCell: UITableViewCell {
     func didTapReTweetButton(sender: Any) -> Void {
         if tweet.isReTweeted! {
             TwitterClient.sharedInstance?.unRetweet(tweetId: tweet.id!, success: { (tweet: Tweet) in
-//                self.delegate.updateTweetTable()
+                self.delegate.updateTweetTable()
                 self.reTweetImageView.image  = UIImage(named: "un_retweet_icon")
-                self.likeCountLabel.textColor = UIColor(red: 170/255, green: 184/255, blue: 193/255, alpha: 1)
                 let reTweetCount = Int(self.reTweetCountLabel.text!)
                 self.reTweetCountLabel.text = "\(reTweetCount! - 1)"
                 self.tweet.isReTweeted = false
@@ -126,9 +119,8 @@ class TweetTableViewCell: UITableViewCell {
             })
         } else {
             TwitterClient.sharedInstance?.retweet(tweetId: tweet.id!, success: { (tweet: Tweet) in
-//                self.delegate.updateTweetTable()
+                self.delegate.updateTweetTable()
                 self.reTweetImageView.image = UIImage(named: "retweet_icon")
-                self.reTweetCountLabel.textColor = UIColor(red: 46/255, green: 204/255, blue: 137/255, alpha: 1)
                 let reTweetCount = Int(self.reTweetCountLabel.text!)
                 self.reTweetCountLabel.text = "\(reTweetCount! + 1)"
                 self.tweet.isReTweeted = true
